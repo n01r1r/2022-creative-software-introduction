@@ -1,4 +1,4 @@
-print("학번: 202020778, 이름: 한동엽")
+print("학번: , 이름: 한동엽")
 
 
 def isRightFile(filename):
