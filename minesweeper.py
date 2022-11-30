@@ -135,26 +135,41 @@ def findAgain(board, val=3, size=18):
                     reveal(board, a, b)
                     cnt += 1
     return cnt
-    
-def guessMine(board, size=18):
-    #정공법으로 안되는 경우
-        pass
 
-        
-    #return something           
-                    
-                    #(i,j) 주변 (s,t) 8 지점에 대해서 list로 처리
-                    #(s,t)에 대해서 *과 1~3이 적절한 위치인 경우에 대해 언노운 *로 처리
-                    # case 1. 언노운 1개
-                    #case 1-1. 최고값 k를 중심으로 지뢰가 k-1개 있는 경우 언노운은 지뢰
+#(i,j) 주변 판단해서 count 높여주기..? / 진행중
+def guessBlock(board, i, j, size=18):
+  lst = []
+  mines = collectWindow(board, i, j, -1)
+  if board[i][j] > 0 and board[i][j] > len(mines):
+    lst.append((i, j))
+  return lst
 
-                    #case 2. 최고값 k를 중심으로 지뢰가 k개 있는 경우 언노운은 지뢰 X (언노운 개수 상관 X)
+# board 위에서 val을 가지는 좌표 list 반환
+def getNumList(board, val, size=18):
+  lists = []
+  for s in range(0,size):
+    for t in range(0,size):
+      if board[s][t] == val:
+        lists.append((s,t))
+      else:
+        continue
+  return lists
 
-                    #추정: 2,3, 등 높은 값들 주변의 모든 언노운에 cnt +1
-                    #추정: 언노운 중 가장 cnt 높은 것들 mark
-                    
-
-
+#주변 블록 범위 격자와 value를 갖는 list 반환
+def getNearBlocks(board, i, j, size=18):
+  """
+    (i, j) 격자 (Cell) 주변의 격자를 모읍니다.
+    """
+  collect = []
+  for s in range(max(i - 1, 0), min(i + 2, size)):
+    for t in range(max(j - 1, 0), min(j + 2, size)):
+      try:
+        if (i,j) != (s,t):
+          collect.append(s,t) #(i,j) 꼴로 모으기
+      except IndexError:
+        continue
+  return collect
+              
 def find_mines(board, size=18):
     while auto_reveal(board, 1) > 0:
         num = 8
@@ -181,8 +196,7 @@ if __name__ == "__main__":
     findAgain(board)
     # printBoard(board, 18)
     print("\n========================\n")
-
     find_mines(board) #auto_reveal
-
+    #print(getNearBlocks(board, 2, 2))
     #print(gameBoard.__board)
     gameBoard.evaluate(board)
