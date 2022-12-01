@@ -136,14 +136,6 @@ def findAgain(board, val=3, size=18):
                     cnt += 1
     return cnt
 
-#(i,j) 주변 판단해서 count 높여주기..? / 진행중
-def guessBlock(board, i, j, size=18):
-  lst = []
-  mines = collectWindow(board, i, j, -1)
-  if board[i][j] > 0 and board[i][j] > len(mines):
-    lst.append((i, j))
-  return lst
-
 # board 위에서 val을 가지는 좌표 list 반환
 def getNumList(board, val, size=18):
   lists = []
@@ -165,7 +157,7 @@ def getNearBlocks(board, i, j, size=18):
     for t in range(max(j - 1, 0), min(j + 2, size)):
       try:
         if (i,j) != (s,t):
-          collect.append(s,t) #(i,j) 꼴로 모으기
+          collect.append([s,t]) #(i,j) 꼴로 모으기
       except IndexError:
         continue
   return collect
@@ -183,6 +175,37 @@ def find_mines(board, size=18):
             continue
     printBoard(board, size)
 
+def doAgain(board, size=18):
+  near = []
+  countInt = {}
+  cnt = 0
+  noneList = getNumList(board, None)
+
+  for no in noneList:
+    a = no[0]
+    b = no[1]
+    near.insert(cnt, [cnt, (getNearBlocks(board, a, b))])
+    cnt += 1
+
+  for val, list in near:
+    for l in list:
+      if (board[l[0]][l[1]] != None) and (board[l[0]][l[1]] != -1):
+        if (noneList[val]) in countInt:
+          countInt[(noneList[val])] += 1
+          pass
+        else:
+          #empty, new key value set
+          countInt[(noneList[val])] = 1
+          #print("list empty")
+      else: #?, 지뢰는 pass
+        continue
+  print(countInt)
+
+  high = max(countInt, key=countInt.get)
+  #print([list(countInt.values()).index(high)])
+
+
+
 if __name__ == "__main__":
     gameBoard = Board()
     board = gameBoard.init_playboard()
@@ -194,9 +217,7 @@ if __name__ == "__main__":
     if reveal(board, 11, 10) == 0:
         reveal_zeros(board, 11, 10)
     findAgain(board)
-    # printBoard(board, 18)
     print("\n========================\n")
     find_mines(board) #auto_reveal
-    #print(getNearBlocks(board, 2, 2))
-    #print(gameBoard.__board)
+    print(doAgain(board))
     gameBoard.evaluate(board)
