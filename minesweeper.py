@@ -112,6 +112,39 @@ def auto_reveal(board, base=1, size=18):
           count += 1
   return count
 
+def doAgain(board, size=18):
+  near = []
+  countInt = {}
+  cnt = 0
+  noneList = getNumList(board, None)
+
+  for no in noneList:
+    a = no[0]
+    b = no[1]
+    near.insert(cnt, [cnt, (getNearBlocks(board, a, b))])
+    cnt += 1
+
+  for val, list in near:
+    for l in list:
+      if (board[l[0]][l[1]] != None) and (board[l[0]][l[1]] != -1):
+        if (noneList[val]) in countInt:
+          countInt[(noneList[val])] += 1
+          pass
+        else:
+          #empty, new key value set
+          countInt[(noneList[val])] = 1
+          #print("list empty")
+      else: #?, 지뢰는 pass
+        continue
+  #print(countInt)
+  if countInt != None and len(countInt) > 0:
+      high = max(countInt, key=countInt.get)
+      while countInt[high] > 2:
+        mark(board, high[0], high[1])
+        print(high[0], high[1], "marked")
+        return 1
+  else:
+    return 0
 
 def findAgain(board, val=3, size=18):
     cnt = 0
@@ -123,13 +156,12 @@ def findAgain(board, val=3, size=18):
             mine = collectWindow(board, s, t, -1)
             if len(unknown) == 1: #? 1개, k 중심 k-1개의 지뢰일 경우
                 if len(mine) == val-1:
-                    print(unknown)
-                    print("is a mine\n")
+                    #print(unknown)
+                    #print("is a mine\n")
                     mark(board, unknown[0][0], unknown[0][1])
                     cnt += 1
             else:
                 pass
-
             if val == len(mine): #?이 확실하게 지뢰가 아닌 경우
                 for a, b in unknown:
                     reveal(board, a, b)
@@ -167,44 +199,13 @@ def find_mines(board, size=18):
         num = 8
         while num > 1:
             findAgain(board, num)
-            print(num, "-th findAgain")
+            #print(num, "-th findAgain")
             num -= 1
         if auto_reveal(board, 1) == 0:
             break
         else:
             continue
     printBoard(board, size)
-
-def doAgain(board, size=18):
-  near = []
-  countInt = {}
-  cnt = 0
-  noneList = getNumList(board, None)
-
-  for no in noneList:
-    a = no[0]
-    b = no[1]
-    near.insert(cnt, [cnt, (getNearBlocks(board, a, b))])
-    cnt += 1
-
-  for val, list in near:
-    for l in list:
-      if (board[l[0]][l[1]] != None) and (board[l[0]][l[1]] != -1):
-        if (noneList[val]) in countInt:
-          countInt[(noneList[val])] += 1
-          pass
-        else:
-          #empty, new key value set
-          countInt[(noneList[val])] = 1
-          #print("list empty")
-      else: #?, 지뢰는 pass
-        continue
-  print(countInt)
-
-  high = max(countInt, key=countInt.get)
-  #print([list(countInt.values()).index(high)])
-
-
 
 if __name__ == "__main__":
     gameBoard = Board()
@@ -219,5 +220,10 @@ if __name__ == "__main__":
     findAgain(board)
     print("\n========================\n")
     find_mines(board) #auto_reveal
-    print(doAgain(board))
+
+    while doAgain(board) > 0:
+      findAgain(board)
+      find_mines(board)
+      doAgain(board)
+
     gameBoard.evaluate(board)
